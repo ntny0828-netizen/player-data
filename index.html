@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14284b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="選手データ">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,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">
+<title>選手データ管理</title>
+<style>
+:root{--navy:#14284b;--red:#c8102e;--bg:#f3f4f6;--line:#e3e6eb;--mut:#6b7280;--g:#16a34a;--b:#2563eb;--o:#ea580c}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;background:var(--bg);color:#111827;-webkit-text-size-adjust:100%}
+.top{background:var(--navy);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:700;font-size:17px;display:flex;align-items:center;gap:8px}
+.ball{width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:inset 3px 0 0 -1px var(--red),inset -3px 0 0 -1px var(--red)}
+.st{font-size:12px;opacity:.8}
+.tabs{display:flex;background:var(--navy);padding:0 8px}
+.tabs a{flex:1;text-align:center;color:#cbd5e1;text-decoration:none;padding:10px;font-size:14px;border-bottom:3px solid transparent}
+.tabs a.on{color:#fff;border-color:var(--red);font-weight:700}
+main{max-width:960px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:0}h1 small{font-size:13px;color:var(--mut);font-weight:400}
+h2{font-size:16px;margin:24px 0 8px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.btn{font:inherit;font-size:14px;padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:#111827;cursor:pointer;font-weight:600}
+.btn.pri{background:var(--red);border-color:var(--red);color:#fff}
+.btn.ghost{background:transparent;color:var(--red);border-color:transparent}
+.empty{background:#fff;border:1px dashed #cbd5e1;border-radius:14px;padding:28px 20px;text-align:center;color:var(--mut);font-size:14px}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.pcard{display:block;background:#fff;border-radius:14px;padding:14px;text-decoration:none;color:inherit;border:1px solid var(--line)}
+.pn{font-weight:700;font-size:16px}.pm{color:var(--mut);font-size:13px;margin-top:2px;font-weight:400}
+.pr{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;font-weight:700}
+.pr .pbar{flex:1;margin:0}
+.pd{font-size:12px;color:var(--mut);margin-top:6px}
+.pbar{height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px}
+.pbar i{display:block;height:100%;background:var(--navy);border-radius:99px}
+.pbar.g i{background:var(--g)}.pbar.b i{background:var(--b)}.pbar.o i{background:var(--o)}
+.back{display:inline-block;color:var(--navy);text-decoration:none;font-size:14px;margin-bottom:8px}
+.phead{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:14px;padding:14px 16px;border:1px solid var(--line)}
+.ov{text-align:center}.ov b{display:block;font-size:24px;color:var(--navy)}.ov span{font-size:11px;color:var(--mut)}
+.acts{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}.acts .pri{flex:1}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.card{background:#fff;border-radius:14px;padding:12px;border:1px solid var(--line)}
+.card.done{border-color:var(--g);box-shadow:0 0 0 1px var(--g) inset}
+.mn{font-size:12px;color:var(--mut);font-weight:600}
+.cv{font-size:24px;font-weight:800;margin-top:4px;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.cv small{font-size:12px;font-weight:600;color:var(--mut);margin-left:2px}
+.na{font-size:15px;color:#9ca3af;font-weight:600}
+.dl{font-size:12px;font-weight:700;color:var(--mut)}.dl.good{color:var(--g)}.dl.bad{color:var(--o)}
+.tg{font-size:12px;color:var(--mut);display:flex;justify-content:space-between;margin-top:4px}
+.ok{color:var(--g);font-weight:800}
+.spark{width:100%;height:34px;margin-top:6px;display:block}
+.spark polyline{fill:none;stroke:var(--navy);stroke-width:2;vector-effect:non-scaling-stroke}
+.spark .tl{stroke:var(--red);stroke-dasharray:4 3;stroke-width:1;vector-effect:non-scaling-stroke}
+.tw{overflow-x:auto;background:#fff;border-radius:14px;border:1px solid var(--line)}
+table{border-collapse:collapse;font-size:13px;width:100%}
+th,td{padding:8px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-size:11px;color:var(--mut);font-weight:600;background:#f9fafb}
+th small{display:block;font-weight:400}
+th:first-child,td:first-child{text-align:left}
+.tt th[data-act]{cursor:pointer}.tt th.on{color:var(--red)}
+.tt td:first-child{position:sticky;left:0;background:#fff;z-index:1;font-weight:700}
+.tt th:first-child{position:sticky;left:0;z-index:2}
+.tt td span{color:var(--mut);font-size:11px;margin-left:3px}
+.tt td.g{background:#ecfdf5}.tt td.b{background:#eff6ff}.tt td.o{background:#fff7ed}
+.tt a{color:inherit;text-decoration:none}
+.mini{font:inherit;font-size:12px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:3px 8px}
+.hint{font-size:12px;color:var(--mut);margin:6px 0}
+.danger{text-align:center;margin:28px 0 8px}
+.mask{position:fixed;inset:0;background:rgba(17,24,39,.5);display:flex;align-items:flex-end;justify-content:center;z-index:50}
+.sheet{background:#fff;width:100%;max-width:520px;max-height:92vh;display:flex;flex-direction:column;border-radius:18px 18px 0 0;margin:0}
+@media(min-width:600px){.mask{align-items:center}.sheet{border-radius:18px}}
+.sh{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.sh h3{margin:0;font-size:16px}.x{border:0;background:none;font-size:24px;line-height:1;color:var(--mut);cursor:pointer}
+.sb{padding:14px 16px;overflow-y:auto}
+.sf{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line);flex-wrap:wrap}
+.sf .ghost{margin-right:auto}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:12px}
+.u{font-weight:400;color:var(--mut);margin-left:4px;font-size:12px}
+input,select,textarea{display:block;width:100%;margin-top:4px;font:inherit;font-size:16px;padding:9px 10px;border:1px solid #d1d5db;border-radius:9px;background:#fff;color:#111827}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.err{color:var(--red);font-size:13px;margin:0}
+textarea{height:200px;font-size:12px;font-family:ui-monospace,monospace}
+
+.hr{display:flex;align-items:center;gap:10px}
+.acct{font:inherit;font-size:13px;color:#fff;background:rgba(255,255,255,.12);border:0;border-radius:8px;padding:6px 10px;cursor:pointer}
+.ro{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:0 0 12px}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--navy)}
+.lbox{background:#fff;border-radius:18px;padding:24px 20px;width:100%;max-width:360px}
+.lbrand{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:18px}
+.ball.big{width:44px;height:44px;box-shadow:inset 7px 0 0 -2px var(--red),inset -7px 0 0 -2px var(--red),0 0 0 2px #e5e7eb}
+.btn.wide{width:100%;padding:12px;font-size:16px;margin-top:4px}
+.btn:disabled{opacity:.6}
+.mine{display:flex;flex-direction:column;gap:2px;background:var(--navy);color:#fff;text-decoration:none;border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.mine span{font-size:12px;opacity:.75}.mine b{font-size:18px}.mine em{font-style:normal;font-size:13px;color:#fca5a5;font-weight:700;margin-top:4px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+// ===== 設定（ここだけ書き換えてください） =====================
+// ① Firebaseコンソールの「マイアプリ」に表示される firebaseConfig をそのまま貼り付け
+const firebaseConfig = {
+  apiKey: "AIzaSyC3ZG93D4fgiSTkBY_g_NZnx3YZRNjPkUA",
+  authDomain: "baseball-8c7fc.firebaseapp.com",
+  projectId: "baseball-8c7fc",
+  storageBucket: "baseball-8c7fc.firebasestorage.app",
+  messagingSenderId: "588514569699",
+  appId: "1:588514569699:web:f01131052ee63b9d19c4d6",
+  measurementId: "G-7XTD6QGDW8"
+};
+// ② 入力（記録・目標設定・選手追加）ができる人のログインID
+//    ※ firestore.rules の一覧と必ず同じにしてください
+const COACH_IDS = ["chonan", "t.nakayama", "h.nakayama", "imada", "abe", "namioka", "toriyabe", "sakamoto", "kimura"];
+// ③ ログインIDの後ろに自動で付ける文字（変更不要）
+const ID_DOMAIN = "team.local";
+// =============================================================
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const M = [
+  { k: 'velo', n: '球速', u: 'km/h' },
+  { k: 'squat', n: 'スクワット', u: 'kg' },
+  { k: 'dead', n: 'デッドリフト', u: 'kg' },
+  { k: 'bench', n: 'ベンチプレス', u: 'kg' },
+  { k: 'mb', n: 'メディシンボール投げ', u: 'm' },
+  { k: 'swing', n: 'スイングスピード', u: 'km/h' },
+  { k: 'weight', n: '体重', u: 'kg' },
+  { k: 'fat', n: '体脂肪率', u: '%' }
+];
+const POS = ['投手', '捕手', '一塁手', '二塁手', '三塁手', '遊撃手', '外野手'];
+const GR = ['1年', '2年', '3年'];
+
+let S = { players: [] }, sortK = null, status = '', loaded = false, authReady = false, user = null, isCoach = false, unsub = null;
+let auth = null, fs = null;
+const configured = !String(firebaseConfig.apiKey).startsWith('ここ');
+
+const toEmail = id => { id = String(id || '').trim().toLowerCase(); return id.includes('@') ? id : id + '@' + ID_DOMAIN; };
+const showId = email => { email = String(email || ''); return email.endsWith('@' + ID_DOMAIN) ? email.slice(0, -ID_DOMAIN.length - 1) : email; };
+
+if (configured) {
+  const app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  fs = getFirestore(app);
+  onAuthStateChanged(auth, u => {
+    user = u; authReady = true;
+    if (unsub) { unsub(); unsub = null; }
+    S.players = []; loaded = false; setStatus('');
+    if (u) {
+      isCoach = COACH_IDS.map(toEmail).includes(String(u.email || '').toLowerCase());
+      unsub = onSnapshot(collection(fs, 'players'), snap => {
+        S.players = snap.docs.map(d => {
+          const x = d.data() || {};
+          return { id: d.id, name: x.name || '', grade: x.grade || '', pos: x.pos || '', account: x.account || '', targets: x.targets || {}, records: x.records || [], updatedAt: x.updatedAt || '', updatedBy: x.updatedBy || '' };
+        });
+        loaded = true; render();
+      }, err => { loaded = true; setStatus(err && err.code === 'permission-denied' ? 'denied' : 'err'); render(); });
+    }
+    render();
+  });
+}
+
+/* ---------- 共通 ---------- */
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const num = x => (x == null || x === '' || isNaN(+x)) ? null : +x;
+const fmt = v => v == null ? '—' : String(Math.round(v * 10) / 10);
+const series = (p, k) => p.records.filter(r => num(r.values && r.values[k]) != null).sort((a, b) => a.date.localeCompare(b.date)).map(r => ({ date: r.date, v: +r.values[k] }));
+const cur = (p, k) => { const s = series(p, k); return s.length ? s[s.length - 1].v : null; };
+function prog(p, k) {
+  const t = num(p.targets[k]), s = series(p, k); if (t == null || !s.length) return null;
+  const st = s[0].v, c = s[s.length - 1].v, reached = t >= st ? c >= t : c <= t;
+  if (reached) return 1; if (t === st) return 0;
+  return Math.max(0, Math.min(1, (c - st) / (t - st)));
+}
+function overall(p) { const a = M.map(m => prog(p, m.k)).filter(x => x != null); return a.length ? a.reduce((x, y) => x + y, 0) / a.length : null; }
+const lastDate = p => p.records.reduce((m, r) => r.date > m ? r.date : m, '');
+const barCls = pr => pr == null ? '' : pr >= 1 ? 'g' : pr >= .5 ? 'b' : 'o';
+const sorted = () => S.players.slice().sort((a, b) => GR.indexOf(b.grade) - GR.indexOf(a.grade) || a.name.localeCompare(b.name, 'ja'));
+const pct = x => Math.round(x * 100) + '%';
+const rw = h => isCoach ? h : '';
+const myEmail = () => String(user && user.email || '').toLowerCase();
+const isMine = p => !!(p && p.account && p.account === myEmail());
+const canRec = p => isCoach || isMine(p);
+const rec = (p, h) => canRec(p) ? h : '';
+const myPlayer = () => S.players.find(isMine);
+const find = id => S.players.find(x => x.id === id);
+
+/* ---------- 保存 ---------- */
+const ST = { saving: '保存中…', saved: '保存しました', err: '通信エラー', denied: '権限がありません', ro: '閲覧のみ' };
+function setStatus(s) { status = s; const el = document.getElementById('st'); if (el) el.textContent = ST[s] || ''; }
+const chains = {};
+function queue(id, fn) {
+  setStatus('saving');
+  chains[id] = (chains[id] || Promise.resolve()).then(fn).then(() => setStatus('saved'), e => setStatus(e && e.code === 'permission-denied' ? 'denied' : 'err'));
+}
+function save(p) {
+  const stamp = { updatedAt: new Date().toISOString(), updatedBy: showId(user && user.email) };
+  if (!isCoach) { // 選手本人は測定記録だけを更新
+    queue(p.id, () => updateDoc(doc(fs, 'players', p.id), Object.assign({ records: p.records }, stamp)));
+    return;
+  }
+  const body = Object.assign({ name: p.name, grade: p.grade, pos: p.pos, account: p.account || '', targets: p.targets, records: p.records }, stamp);
+  queue(p.id, () => setDoc(doc(fs, 'players', p.id), body));
+}
+function removeP(p) { queue(p.id, () => deleteDoc(doc(fs, 'players', p.id))); }
+
+/* ---------- 画面 ---------- */
+function route() { const h = location.hash.slice(1); if (h === 'team') return { v: 'team' }; if (h.indexOf('p-') === 0) return { v: 'player', id: h.slice(2) }; return { v: 'home' }; }
+function render() {
+  const root = document.getElementById('root');
+  if (!configured) { root.innerHTML = '<div class="login"><div class="lbox"><h1>初期設定が必要です</h1><p class="hint">index.html の先頭にある firebaseConfig に、Firebaseの設定値を貼り付けてください（手順書の「手順4」）。</p></div></div>'; return; }
+  if (!authReady) { root.innerHTML = '<div class="login"><div class="lbox"><p class="hint">読み込み中…</p></div></div>'; return; }
+  if (!user) { root.innerHTML = loginView(); return; }
+  const r = route();
+  let h = '<header class="top"><div class="brand"><span class="ball"></span>選手データ管理</div><div class="hr"><span class="st" id="st">' + (ST[status] || '') + '</span><button class="acct" data-act="account">' + esc(showId(user.email)) + ' ▾</button></div></header>' +
+    '<nav class="tabs"><a href="#" class="' + (r.v !== 'team' ? 'on' : '') + '">選手</a><a href="#team" class="' + (r.v === 'team' ? 'on' : '') + '">チーム一覧</a></nav><main>';
+  if (!isCoach && loaded) {
+    const mp = myPlayer();
+    h += mp ? '<a class="mine" href="#p-' + mp.id + '"><span>あなたの記録</span><b>' + esc(mp.name) + '</b><em>測定を入力する ›</em></a>'
+      : '<p class="hint ro">あなたのIDはまだ選手に紐付けられていないため、閲覧のみです。コーチに「選手情報の編集」でログインIDを登録してもらってください。</p>';
+  }
+  if (!loaded) h += '<div class="empty">読み込み中…</div>';
+  else if (r.v === 'team') h += teamView();
+  else if (r.v === 'player') { const p = find(r.id); h += p ? playerView(p) : homeView(); }
+  else h += homeView();
+  root.innerHTML = h + '</main>';
+}
+function loginView() {
+  return '<div class="login"><form class="lbox" id="loginForm"><div class="lbrand"><span class="ball big"></span><h1>選手データ管理</h1></div>' +
+    '<label>ログインID<input name="lid" autocomplete="username" autocapitalize="none" spellcheck="false"></label>' +
+    '<label>パスワード<input name="pw" type="password" autocomplete="current-password"></label>' +
+    '<p class="err" id="loginErr"></p><button class="btn pri wide" type="submit">ログイン</button>' +
+    '<p class="hint">IDとパスワードはコーチから受け取ってください。</p></form></div>';
+}
+function homeView() {
+  const ps = sorted();
+  let h = '<div class="bar"><h1>選手一覧 <small>' + ps.length + '名</small></h1>' + rw('<button class="btn pri" data-act="addPlayer">＋ 選手を追加</button>') + '</div>';
+  if (!ps.length) return h + '<div class="empty"><p>まだ選手が登録されていません。</p>' + rw('<p>「＋ 選手を追加」から登録し、目標値と測定値を入力していきましょう。</p>') + '</div>';
+  return h + '<div class="plist">' + ps.map(p => {
+    const o = overall(p), ld = lastDate(p);
+    return '<a class="pcard" href="#p-' + p.id + '"><div class="pn">' + esc(p.name) + '</div><div class="pm">' + esc(p.grade) + '　' + esc(p.pos) + '</div>' +
+      '<div class="pr"><div class="pbar ' + barCls(o) + '"><i style="width:' + (o == null ? 0 : pct(o)) + '"></i></div><span>' + (o == null ? '目標未設定' : pct(o)) + '</span></div>' +
+      '<div class="pd">' + (ld ? '最終測定 ' + esc(ld.replace(/-/g, '/')) : '測定なし') + '</div></a>';
+  }).join('') + '</div>';
+}
+function playerView(p) {
+  const o = overall(p);
+  return '<a class="back" href="#">‹ 選手一覧</a><div class="phead"><div><h1>' + esc(p.name) + '</h1><div class="pm">' + esc(p.grade) + ' ・ ' + esc(p.pos) + '</div></div><div class="ov"><b>' + (o == null ? '—' : pct(o)) + '</b><span>目標達成度</span></div></div>' +
+    (p.updatedAt ? '<p class="hint">最終更新 ' + esc(p.updatedAt.slice(0, 10).replace(/-/g, '/')) + (p.updatedBy ? '・' + esc(p.updatedBy) : '') + '</p>' : '') +
+    (isCoach ? '<div class="acts"><button class="btn pri" data-act="record">測定を記録</button><button class="btn" data-act="targets">目標を設定</button><button class="btn" data-act="editPlayer">編集</button></div>'
+      : isMine(p) ? '<div class="acts"><button class="btn pri" data-act="record">測定を記録</button></div><p class="hint">目標値はコーチが設定します。</p>' : '') +
+    '<div class="grid" style="margin-top:12px">' + M.map(m => card(p, m)).join('') + '</div>' + historyTable(p) +
+    rw('<div class="danger"><button class="btn ghost" data-act="delPlayer">この選手を削除</button></div>');
+}
+function card(p, m) {
+  const s = series(p, m.k), t = num(p.targets[m.k]), c = s.length ? s[s.length - 1].v : null, pv = s.length > 1 ? s[s.length - 2].v : null, pr = prog(p, m.k), done = pr != null && pr >= 1;
+  let delta = '';
+  if (c != null && pv != null) {
+    const d = c - pv; let cls = '';
+    if (t != null && d !== 0) cls = (d > 0) === (t - pv > 0) ? 'good' : 'bad';
+    delta = '<span class="dl ' + cls + '">' + (d > 0 ? '▲' : d < 0 ? '▼' : '±') + fmt(Math.abs(d)) + '</span>';
+  }
+  let rem = ''; if (t != null && c != null) rem = done ? '<span class="ok">達成！</span>' : 'あと ' + fmt(Math.abs(t - c)) + m.u;
+  return '<div class="card' + (done ? ' done' : '') + '"><div class="mn">' + m.n + '</div>' +
+    '<div class="cv">' + (c == null ? '<span class="na">未測定</span>' : fmt(c) + '<small>' + m.u + '</small>') + delta + '</div>' +
+    '<div class="tg"><span>' + (t == null ? '目標未設定' : '目標 ' + fmt(t) + m.u) + '</span><span>' + rem + '</span></div>' +
+    '<div class="pbar ' + barCls(pr) + '"><i style="width:' + (pr == null ? 0 : pct(pr)) + '"></i></div>' + spark(s, t) + '</div>';
+}
+function spark(s, t) {
+  if (s.length < 2) return '';
+  const w = 120, h = 36, pd = 3, vals = s.map(x => x.v); if (t != null) vals.push(t);
+  let mn = Math.min(...vals), mx = Math.max(...vals); if (mn === mx) { mn -= 1; mx += 1; }
+  const X = i => (pd + i * (w - 2 * pd) / (s.length - 1)).toFixed(1), Y = v => (h - pd - (v - mn) * (h - 2 * pd) / (mx - mn)).toFixed(1);
+  const tl = t != null ? '<line class="tl" x1="0" x2="' + w + '" y1="' + Y(t) + '" y2="' + Y(t) + '"/>' : '';
+  return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' + tl + '<polyline points="' + s.map((x, i) => X(i) + ',' + Y(x.v)).join(' ') + '"/></svg>';
+}
+function historyTable(p) {
+  const rs = p.records.slice().sort((a, b) => b.date.localeCompare(a.date));
+  if (!rs.length) return '<h2>測定履歴</h2><div class="empty">' + (canRec(p) ? '「測定を記録」から最初のデータを入力してください。' : 'まだ測定記録がありません。') + '</div>';
+  return '<h2>測定履歴</h2><div class="tw"><table><thead><tr><th>日付</th>' + M.map(m => '<th>' + m.n + '<small>' + m.u + '</small></th>').join('') + rec(p, '<th></th>') + '</tr></thead><tbody>' +
+    rs.map(r => '<tr><td>' + esc(r.date.slice(2).replace(/-/g, '/')) + '</td>' + M.map(m => '<td>' + fmt(num(r.values[m.k])) + '</td>').join('') + rec(p, '<td><button class="mini" data-act="editRec" data-date="' + esc(r.date) + '">編集</button></td>') + '</tr>').join('') +
+    '</tbody></table></div><p class="hint">表は横にスクロールできます。</p>';
+}
+function teamView() {
+  const ps = sorted();
+  if (!ps.length) return '<div class="empty"><p>選手を追加すると、ここにチーム全体の一覧が表示されます。</p></div>';
+  const rows = ps.map(p => ({ p, o: overall(p) }));
+  if (sortK) rows.sort((a, b) => {
+    const av = sortK === 'o' ? a.o : cur(a.p, sortK), bv = sortK === 'o' ? b.o : cur(b.p, sortK);
+    if (av == null) return 1; if (bv == null) return -1; return bv - av;
+  });
+  return '<div class="bar"><h1>チーム一覧</h1><button class="btn" data-act="csv">CSV出力</button></div>' +
+    '<p class="hint">見出しをタップで並べ替え（高い順）。セルは「現在 / 目標」、色は達成度（緑＝達成、青＝50%以上、橙＝50%未満）。</p>' +
+    '<div class="tw"><table class="tt"><thead><tr><th>選手</th><th data-act="sort" data-k="o" class="' + (sortK === 'o' ? 'on' : '') + '">達成度</th>' +
+    M.map(m => '<th data-act="sort" data-k="' + m.k + '" class="' + (sortK === m.k ? 'on' : '') + '">' + m.n + '<small>' + m.u + '</small></th>').join('') + '</tr></thead><tbody>' +
+    rows.map(r => {
+      const p = r.p;
+      return '<tr><td><a href="#p-' + p.id + '">' + esc(p.name) + '<div class="pm">' + esc(p.grade) + ' ' + esc(p.pos) + '</div></a></td><td class="' + barCls(r.o) + '"><b>' + (r.o == null ? '—' : pct(r.o)) + '</b></td>' +
+        M.map(m => { const pr = prog(p, m.k); return '<td class="' + barCls(pr) + '"><b>' + fmt(cur(p, m.k)) + '</b><span>/ ' + fmt(num(p.targets[m.k])) + '</span></td>'; }).join('') + '</tr>';
+    }).join('') + '</tbody></table></div>';
+}
+
+/* ---------- モーダル ---------- */
+function modal(title, body, onSave, o) {
+  o = o || {};
+  const m = document.createElement('div'); m.className = 'mask';
+  m.innerHTML = '<form class="sheet" novalidate><div class="sh"><h3>' + title + '</h3><button type="button" class="x" data-close>×</button></div><div class="sb">' + body + '<p class="err"></p></div><div class="sf">' + (o.extra || '') + (o.noCancel ? '' : '<button type="button" class="btn" data-close>キャンセル</button>') + (o.noOk ? '' : '<button class="btn pri" type="submit">' + (o.ok || '保存') + '</button>') + '</div></form>';
+  document.body.appendChild(m);
+  m.addEventListener('click', e => { if (e.target === m || e.target.closest('[data-close]')) m.remove(); });
+  m.querySelector('form').addEventListener('submit', e => {
+    e.preventDefault();
+    const btn = m.querySelector('button[type=submit]'); if (btn) btn.disabled = true;
+    Promise.resolve(onSave(new FormData(e.target))).then(err => {
+      if (btn) btn.disabled = false;
+      if (err) { m.querySelector('.err').textContent = err; return; }
+      m.remove(); render();
+    });
+  });
+  if (o.setup) o.setup(m);
+  return m;
+}
+const opts = (list, sel) => list.map(x => '<option' + (x === sel ? ' selected' : '') + '>' + x + '</option>').join('');
+function playerForm(p) {
+  const body = '<label>名前<input name="name" value="' + esc(p ? p.name : '') + '" placeholder="例：山田 太郎"></label>' +
+    '<label>学年<select name="grade">' + opts(GR, p ? p.grade : '1年') + '</select></label>' +
+    '<label>ポジション<select name="pos">' + opts(POS, p ? p.pos : '投手') + '</select></label>' +
+    '<label>本人のログインID<span class="u">任意・入れると本人が自分の記録を入力できます</span><input name="acct" autocapitalize="none" spellcheck="false" value="' + esc(p && p.account ? showId(p.account) : '') + '" placeholder="例：yamada01"></label>';
+  modal(p ? '選手情報の編集' : '選手を追加', body, fd => {
+    const name = String(fd.get('name') || '').trim(); if (!name) return '名前を入力してください';
+    const a = String(fd.get('acct') || '').trim(), account = a ? toEmail(a) : '';
+    if (account && S.players.some(x => x !== p && x.account === account)) return 'このログインIDは別の選手に登録済みです';
+    if (p) { p.name = name; p.grade = fd.get('grade'); p.pos = fd.get('pos'); p.account = account; save(p); }
+    else { const np = { id: uid(), name, grade: fd.get('grade'), pos: fd.get('pos'), account, targets: {}, records: [] }; S.players.push(np); save(np); location.hash = 'p-' + np.id; }
+  });
+}
+function recordForm(p, date) {
+  const ex = date ? p.records.find(r => r.date === date) : null;
+  const body = '<label>測定日<input type="date" name="date" value="' + (ex ? ex.date : today()) + '"></label><div class="fgrid">' +
+    M.map(m => {
+      const last = cur(p, m.k), v = ex && num(ex.values[m.k]) != null ? ex.values[m.k] : '';
+      return '<label>' + m.n + '<span class="u">' + m.u + '</span><input name="' + m.k + '" type="number" step="any" inputmode="decimal" value="' + v + '" placeholder="' + (last != null ? '前回 ' + fmt(last) : '') + '"></label>';
+    }).join('') +
+    '</div><p class="hint">' + (ex ? '空欄にした項目はこの日の記録から消えます。' : '測った項目だけ入力すればOK。同じ日付の記録があれば追記されます。') + '</p>';
+  modal(ex ? '測定記録の編集' : '測定を記録', body, fd => {
+    const d = fd.get('date'); if (!d) return '測定日を入力してください';
+    const vals = {}; M.forEach(m => { const v = num(fd.get(m.k)); if (v != null) vals[m.k] = v; });
+    if (!Object.keys(vals).length) return ex ? '値が空です。記録ごと消す場合は「この記録を削除」を押してください' : '値を1つ以上入力してください';
+    if (ex) p.records = p.records.filter(r => r !== ex);
+    const tg = p.records.find(r => r.date === d);
+    if (tg) Object.assign(tg.values, vals); else p.records.push({ date: d, values: vals });
+    save(p);
+  }, {
+    extra: ex ? '<button type="button" class="btn ghost" data-delrec>この記録を削除</button>' : '', setup: m => {
+      const b = m.querySelector('[data-delrec]'); if (!b) return;
+      b.onclick = () => { if (b.dataset.c) { p.records = p.records.filter(r => r !== ex); m.remove(); save(p); render(); } else { b.dataset.c = 1; b.textContent = 'もう一度押すと削除'; } };
+    }
+  });
+}
+function targetForm(p) {
+  const body = '<div class="fgrid">' + M.map(m => {
+    const c = cur(p, m.k), t = num(p.targets[m.k]);
+    return '<label>' + m.n + '<span class="u">' + m.u + (c != null ? '・現在 ' + fmt(c) : '') + '</span><input name="' + m.k + '" type="number" step="any" inputmode="decimal" value="' + (t == null ? '' : t) + '"></label>';
+  }).join('') +
+    '</div><p class="hint">体脂肪率など下げたい項目は、現在より低い値を目標にすれば自動で「下げる目標」として計算されます。達成度は最初の測定値から目標までの進み具合です。</p>';
+  modal('目標値の設定', body, fd => {
+    const t = {}; M.forEach(m => { const v = num(fd.get(m.k)); if (v != null) t[m.k] = v; }); p.targets = t; save(p);
+  });
+}
+function delForm(p) {
+  modal('選手の削除', '<p>「' + esc(p.name) + '」とすべての測定記録を削除します。元に戻せません。</p>', () => {
+    S.players = S.players.filter(x => x !== p); removeP(p); location.hash = '';
+  }, { ok: '削除する' });
+}
+function csvText() {
+  const lines = [['選手', '学年', 'ポジション', '測定日'].concat(M.map(m => m.n + '(' + m.u + ')'))];
+  sorted().forEach(p => {
+    lines.push([p.name, p.grade, p.pos, '目標'].concat(M.map(m => p.targets[m.k] == null ? '' : p.targets[m.k])));
+    p.records.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(r => lines.push([p.name, p.grade, p.pos, r.date].concat(M.map(m => r.values[m.k] == null ? '' : r.values[m.k]))));
+  });
+  return lines.map(l => l.map(x => { x = String(x); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }).join(',')).join('\n');
+}
+function csvModal() {
+  modal('CSV出力', '<p class="hint">コピーしてExcelやスプレッドシートに貼り付けできます。</p><textarea readonly>' + esc(csvText()) + '</textarea>', () => { }, {
+    ok: '閉じる', noCancel: true, extra: '<button type="button" class="btn" data-copy>コピー</button>',
+    setup: m => {
+      const b = m.querySelector('[data-copy]'), ta = m.querySelector('textarea');
+      b.onclick = () => { navigator.clipboard.writeText(ta.value).then(() => { b.textContent = 'コピーしました'; }, () => { ta.select(); b.textContent = '選択済み：長押しでコピー'; }); };
+    }
+  });
+}
+function accountModal() {
+  const body = '<p><b>' + esc(showId(user.email)) + '</b>（' + (isCoach ? 'コーチ：すべて入力できます' : myPlayer() ? '選手：自分の測定記録を入力できます' : '閲覧のみ') + '）</p>' +
+    '<h2 style="margin-top:8px">パスワードの変更</h2>' +
+    '<label>新しいパスワード（6文字以上）<input name="pw1" type="password" autocomplete="new-password"></label>' +
+    '<label>もう一度<input name="pw2" type="password" autocomplete="new-password"></label>';
+  modal('アカウント', body, fd => {
+    const a = String(fd.get('pw1') || ''), b = String(fd.get('pw2') || '');
+    if (a.length < 6) return 'パスワードは6文字以上にしてください';
+    if (a !== b) return '2つのパスワードが一致しません';
+    return updatePassword(auth.currentUser, a).then(() => { setStatus(''); }, e => e && e.code === 'auth/requires-recent-login' ? '安全のため、一度ログアウトして再ログインしてから変更してください' : '変更できませんでした（' + (e && e.code || 'エラー') + '）');
+  }, {
+    ok: 'パスワードを変更', extra: '<button type="button" class="btn ghost" data-logout>ログアウト</button>',
+    setup: m => { m.querySelector('[data-logout]').onclick = () => { m.remove(); location.hash = ''; signOut(auth); }; }
+  });
+}
+
+/* ---------- イベント ---------- */
+document.addEventListener('submit', e => {
+  if (!e.target.matches('#loginForm')) return;
+  e.preventDefault();
+  const fd = new FormData(e.target), err = document.getElementById('loginErr'), btn = e.target.querySelector('button');
+  const id = String(fd.get('lid') || '').trim(), pw = String(fd.get('pw') || '');
+  if (!id || !pw) { err.textContent = 'IDとパスワードを入力してください'; return; }
+  btn.disabled = true; err.textContent = '';
+  signInWithEmailAndPassword(auth, toEmail(id), pw).catch(ex => {
+    btn.disabled = false;
+    const c = ex && ex.code;
+    err.textContent = c === 'auth/too-many-requests' ? '試行回数が多すぎます。しばらく待ってから再度お試しください' :
+      c === 'auth/network-request-failed' ? '通信できません。電波状況を確認してください' : 'IDまたはパスワードが違います';
+  });
+});
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-act]'); if (!a || a.closest('.mask')) return;
+  const r = route(), p = r.v === 'player' ? find(r.id) : null;
+  switch (a.dataset.act) {
+    case 'addPlayer': playerForm(); break;
+    case 'editPlayer': if (p) playerForm(p); break;
+    case 'record': if (p && canRec(p)) recordForm(p); break;
+    case 'editRec': if (p && canRec(p)) recordForm(p, a.dataset.date); break;
+    case 'targets': if (p) targetForm(p); break;
+    case 'delPlayer': if (p) delForm(p); break;
+    case 'sort': sortK = sortK === a.dataset.k ? null : a.dataset.k; render(); break;
+    case 'csv': csvModal(); break;
+    case 'account': accountModal(); break;
+  }
+});
+window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
+render();
+
+</script>
+</body>
+</html>
