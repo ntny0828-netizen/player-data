@@ -125,6 +125,8 @@ input{min-width:0}
 .lbox{background:var(--card)}
 .pcard,.card,.phead,.tw,.day,.empty{background:var(--card)}
 .seg{background:#e8dfc8}
+.tsub{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:var(--mut);margin-top:2px}
+.newt{display:block;width:100%;margin-top:8px;font:inherit;font-size:12px;font-weight:700;color:var(--red);background:#e3f2e4;border:1px dashed var(--g);border-radius:8px;padding:6px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -191,7 +193,7 @@ if (configured) {
       unsub = onSnapshot(collection(fs, 'players'), snap => {
         S.players = snap.docs.map(d => {
           const x = d.data() || {};
-          return { id: d.id, name: x.name || '', grade: x.grade || '', pos: x.pos || '', account: x.account || '', targets: x.targets || {}, records: x.records || [], updatedAt: x.updatedAt || '', updatedBy: x.updatedBy || '' };
+          return { id: d.id, name: x.name || '', grade: x.grade || '', pos: x.pos || '', account: x.account || '', targets: x.targets || {}, tgtLog: x.tgtLog || {}, records: x.records || [], updatedAt: x.updatedAt || '', updatedBy: x.updatedBy || '' };
         });
         loaded = true; render();
       }, err => { loaded = true; setStatus(err && err.code === 'permission-denied' ? 'denied' : 'err'); render(); });
@@ -208,9 +210,12 @@ const num = x => (x == null || x === '' || isNaN(+x)) ? null : +x;
 const fmt = v => v == null ? '—' : String(Math.round(v * 100) / 100);
 const series = (p, k) => p.records.filter(r => num(r.values && r.values[k]) != null).sort((a, b) => a.date.localeCompare(b.date)).map(r => ({ date: r.date, v: +r.values[k] }));
 const cur = (p, k) => { const s = series(p, k); return s.length ? s[s.length - 1].v : null; };
+const tgtInfo = (p, k) => { const l = (p.tgtLog && p.tgtLog[k]) || []; return l.length ? l[l.length - 1] : null; };
+const prevTgt = (p, k) => { const l = ((p.tgtLog && p.tgtLog[k]) || []).filter(e => e.v != null); return l.length > 1 ? l[l.length - 2] : null; };
+function baseVal(p, k, s) { return s[0].v; } // 達成度は常に最初の記録から
 function prog(p, k) {
   const t = num(p.targets[k]), s = series(p, k); if (t == null || !s.length) return null;
-  const st = s[0].v, c = s[s.length - 1].v, reached = t >= st ? c >= t : c <= t;
+  const st = baseVal(p, k, s), c = s[s.length - 1].v, reached = t >= st ? c >= t : c <= t;
   if (reached) return 1; if (t === st) return 0;
   return Math.max(0, Math.min(1, (c - st) / (t - st)));
 }
@@ -238,10 +243,10 @@ function queue(id, fn) {
 function save(p) {
   const stamp = { updatedAt: new Date().toISOString(), updatedBy: showId(user && user.email) };
   if (!isCoach) { // 選手本人は測定記録だけを更新
-    queue(p.id, () => updateDoc(doc(fs, 'players', p.id), Object.assign({ records: p.records }, stamp)));
+    queue(p.id, () => updateDoc(doc(fs, 'players', p.id), Object.assign({ records: p.records, targets: p.targets, tgtLog: p.tgtLog || {} }, stamp)));
     return;
   }
-  const body = Object.assign({ name: p.name, grade: p.grade, pos: p.pos, account: p.account || '', targets: p.targets, records: p.records }, stamp);
+  const body = Object.assign({ name: p.name, grade: p.grade, pos: p.pos, account: p.account || '', targets: p.targets, tgtLog: p.tgtLog || {}, records: p.records }, stamp);
   queue(p.id, () => setDoc(doc(fs, 'players', p.id), body));
 }
 function removeP(p) { queue(p.id, () => deleteDoc(doc(fs, 'players', p.id))); }
@@ -296,7 +301,7 @@ function playerView(p) {
   return headHtml(p, 'p') +
     (p.updatedAt ? '<p class="hint">最終更新 ' + esc(p.updatedAt.slice(0, 10).replace(/-/g, '/')) + (p.updatedBy ? '・' + esc(p.updatedBy) : '') + '</p>' : '') +
     (isCoach ? '<div class="acts"><button class="btn pri" data-act="record">測定を記録</button><button class="btn" data-act="targets">目標を設定</button><button class="btn" data-act="editPlayer">編集</button></div>'
-      : isMine(p) ? '<div class="acts"><button class="btn pri" data-act="record">測定を記録</button></div><p class="hint">目標値はコーチが設定します。</p>' : '') +
+      : isMine(p) ? '<div class="acts"><button class="btn pri" data-act="record">測定を記録</button><button class="btn" data-act="targets">目標を設定</button></div>' : '') +
     '<div class="grid" style="margin-top:12px">' + M.map(m => card(p, m)).join('') + '</div>' + historyTable(p) +
     rw('<div class="danger"><button class="btn ghost" data-act="delPlayer">この選手を削除</button></div>');
 }
@@ -312,6 +317,11 @@ function card(p, m) {
   return '<div class="card' + (done ? ' done' : '') + '"><div class="mn">' + m.n + (m.mx ? ' <i class="mx">MAX</i>' : '') + '</div>' +
     '<div class="cv">' + (c == null ? '<span class="na">未測定</span>' : fmt(c) + '<small>' + m.u + '</small>') + delta + '</div>' +
     '<div class="tg"><span>' + (t == null ? '目標未設定' : '目標 ' + fmt(t) + m.u) + '</span><span>' + rem + '</span></div>' +
+    (function () { const ti = tgtInfo(p, m.k), pv2 = prevTgt(p, m.k); let x = '';
+      if (t != null && ti && ti.d) x += '<span>' + esc(ti.d.slice(5).replace('-', '/')) + '設定</span>';
+      if (pv2) x += '<span>前回 ' + fmt(pv2.v) + m.u + '</span>';
+      return x ? '<div class="tsub">' + x + '</div>' : ''; })() +
+    (done && canRec(p) ? '<button class="newt" data-act="targets">＋ 新しい目標を設定</button>' : '') +
     '<div class="pbar ' + barCls(pr) + '"><i style="width:' + (pr == null ? 0 : pct(pr)) + '"></i></div>' + spark(s, t) + '</div>';
 }
 function spark(s, t) {
@@ -409,9 +419,20 @@ function targetForm(p) {
     const c = cur(p, m.k), t = num(p.targets[m.k]);
     return '<label>' + m.n + '<span class="u">' + m.u + (c != null ? '・現在 ' + fmt(c) : '') + '</span><input name="' + m.k + '" type="number" step="any" inputmode="decimal" value="' + (t == null ? '' : t) + '"></label>';
   }).join('') +
-    '</div><p class="hint">体脂肪率など下げたい項目は、現在より低い値を目標にすれば自動で「下げる目標」として計算されます。達成度は最初の測定値から目標までの進み具合です。</p>';
+    '</div><p class="hint">目標を達成したら、いつでも新しい目標に更新できます。達成度は、最初の記録から今の目標までの進み具合で計算します（目標を上げると、それに合わせて達成度も計算し直されます）。<br>体脂肪率や走のタイムなど下げたい項目は、今より低い値を目標にしてください。</p>';
   modal('目標値の設定', body, fd => {
-    const t = {}; M.forEach(m => { const v = num(fd.get(m.k)); if (v != null) t[m.k] = v; }); p.targets = t; save(p);
+    const d = today(), t = {}, log = JSON.parse(JSON.stringify(p.tgtLog || {}));
+    M.forEach(m => {
+      const v = num(fd.get(m.k)), old = num(p.targets[m.k]);
+      if (v != null) t[m.k] = v;
+      if (v !== old) {
+        const l = log[m.k] || (log[m.k] = []);
+        const bv = cur(p, m.k);
+        l.push(bv == null ? { v, d } : { v, d, b: bv });
+        if (l.length > 30) l.splice(0, l.length - 30);
+      }
+    });
+    p.targets = t; p.tgtLog = log; save(p);
   });
 }
 function delForm(p) {
@@ -565,7 +586,7 @@ document.addEventListener('click', e => {
     case 'editPlayer': if (p) playerForm(p); break;
     case 'record': if (p && canRec(p)) recordForm(p); break;
     case 'editRec': if (p && canRec(p)) recordForm(p, a.dataset.date); break;
-    case 'targets': if (p) targetForm(p); break;
+    case 'targets': if (p && canRec(p)) targetForm(p); break;
     case 'delPlayer': if (p) delForm(p); break;
     case 'sort': sortK = sortK === a.dataset.k ? null : a.dataset.k; render(); break;
     case 'csv': csvModal(); break;
