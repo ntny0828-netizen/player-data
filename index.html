@@ -96,6 +96,25 @@ textarea{height:200px;font-size:12px;font-family:ui-monospace,monospace}
 .btn:disabled{opacity:.6}
 .mine{display:flex;flex-direction:column;gap:2px;background:var(--navy);color:#fff;text-decoration:none;border-radius:14px;padding:14px 16px;margin-bottom:14px}
 .mine span{font-size:12px;opacity:.75}.mine b{font-size:18px}.mine em{font-style:normal;font-size:13px;color:#fca5a5;font-weight:700;margin-top:4px}
+.mx{font-style:normal;font-size:10px;font-weight:800;color:#fff;background:var(--navy);border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px}
+.seg{display:flex;background:#e5e7eb;border-radius:12px;padding:3px;margin:12px 0 0}
+.seg a{flex:1;text-align:center;padding:9px 6px;border-radius:9px;font-size:14px;font-weight:700;color:var(--mut);text-decoration:none}
+.seg a.on{background:#fff;color:var(--navy);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.day{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.dh{background:#f9fafb;padding:8px 14px;font-size:13px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line)}
+.li{padding:10px 14px;border-bottom:1px solid var(--line)}.li:last-child{border-bottom:0}
+.lt{display:flex;justify-content:space-between;align-items:center;gap:8px}.lt b{font-size:15px}
+.sets{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.sets span{background:#eef2ff;color:var(--navy);font-size:13px;font-weight:700;border-radius:8px;padding:4px 8px}
+.memo{font-size:13px;color:#374151;margin-top:6px}
+.vol{font-size:12px;color:var(--mut);margin-top:6px}
+.seth,.setrow{display:grid;grid-template-columns:36px 1fr 1fr 36px;gap:8px;align-items:center}
+.seth{font-size:12px;color:var(--mut);font-weight:600;margin-bottom:2px}
+.setrow{margin-bottom:8px}.setrow input{margin-top:0}
+.sn{text-align:center;font-weight:800;color:var(--navy)}
+.xd{border:0;background:#f3f4f6;border-radius:8px;height:40px;font-size:18px;color:var(--mut);cursor:pointer}
+input[type=date]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;min-height:42px;text-align:left}
+input{min-width:0}
 </style>
 </head>
 <body>
@@ -121,13 +140,17 @@ const ID_DOMAIN = "team.local";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const M = [
   { k: 'velo', n: '球速', u: 'km/h' },
-  { k: 'squat', n: 'スクワット', u: 'kg' },
-  { k: 'dead', n: 'デッドリフト', u: 'kg' },
-  { k: 'bench', n: 'ベンチプレス', u: 'kg' },
+  { k: 'squat', mx: true, n: 'スクワット', u: 'kg' },
+  { k: 'dead', mx: true, n: 'デッドリフト', u: 'kg' },
+  { k: 'bench', mx: true, n: 'ベンチプレス', u: 'kg' },
+  { k: 'bulgarian', mx: true, n: 'ブルガリアンスクワット', u: 'kg' },
+  { k: 'rdl', mx: true, n: 'ルーマニアンデッドリフト', u: 'kg' },
+  { k: 'backlunge', mx: true, n: 'バックランジ', u: 'kg' },
+  { k: 'sidelunge', mx: true, n: 'サイドランジ', u: 'kg' },
   { k: 'mb', n: 'メディシンボール投げ', u: 'm' },
   { k: 'swing', n: 'スイングスピード', u: 'km/h' },
   { k: 'weight', n: '体重', u: 'kg' },
@@ -138,6 +161,7 @@ const GR = ['1年', '2年', '3年'];
 
 let S = { players: [] }, sortK = null, status = '', loaded = false, authReady = false, user = null, isCoach = false, unsub = null;
 let auth = null, fs = null;
+let logs = [], logsLoaded = false, logsPid = null, logsUnsub = null;
 const configured = !String(firebaseConfig.apiKey).startsWith('ここ');
 
 const toEmail = id => { id = String(id || '').trim().toLowerCase(); return id.includes('@') ? id : id + '@' + ID_DOMAIN; };
@@ -150,6 +174,7 @@ if (configured) {
   onAuthStateChanged(auth, u => {
     user = u; authReady = true;
     if (unsub) { unsub(); unsub = null; }
+    if (logsUnsub) { logsUnsub(); logsUnsub = null; } logsPid = null; logs = []; logsLoaded = false;
     S.players = []; loaded = false; setStatus('');
     if (u) {
       isCoach = COACH_IDS.map(toEmail).includes(String(u.email || '').toLowerCase());
@@ -212,23 +237,25 @@ function save(p) {
 function removeP(p) { queue(p.id, () => deleteDoc(doc(fs, 'players', p.id))); }
 
 /* ---------- 画面 ---------- */
-function route() { const h = location.hash.slice(1); if (h === 'team') return { v: 'team' }; if (h.indexOf('p-') === 0) return { v: 'player', id: h.slice(2) }; return { v: 'home' }; }
+function route() { const h = location.hash.slice(1); if (h === 'team') return { v: 'team' }; if (h.indexOf('p-') === 0) return { v: 'player', id: h.slice(2) }; if (h.indexOf('t-') === 0) return { v: 'train', id: h.slice(2) }; return { v: 'home' }; }
 function render() {
   const root = document.getElementById('root');
   if (!configured) { root.innerHTML = '<div class="login"><div class="lbox"><h1>初期設定が必要です</h1><p class="hint">index.html の先頭にある firebaseConfig に、Firebaseの設定値を貼り付けてください（手順書の「手順4」）。</p></div></div>'; return; }
   if (!authReady) { root.innerHTML = '<div class="login"><div class="lbox"><p class="hint">読み込み中…</p></div></div>'; return; }
   if (!user) { root.innerHTML = loginView(); return; }
   const r = route();
+  ensureLogs(r.v === 'train' && loaded && find(r.id) ? r.id : null);
   let h = '<header class="top"><div class="brand"><span class="ball"></span>選手データ管理</div><div class="hr"><span class="st" id="st">' + (ST[status] || '') + '</span><button class="acct" data-act="account">' + esc(showId(user.email)) + ' ▾</button></div></header>' +
     '<nav class="tabs"><a href="#" class="' + (r.v !== 'team' ? 'on' : '') + '">選手</a><a href="#team" class="' + (r.v === 'team' ? 'on' : '') + '">チーム一覧</a></nav><main>';
   if (!isCoach && loaded) {
     const mp = myPlayer();
-    h += mp ? '<a class="mine" href="#p-' + mp.id + '"><span>あなたの記録</span><b>' + esc(mp.name) + '</b><em>測定を入力する ›</em></a>'
+    h += mp ? '<a class="mine" href="#p-' + mp.id + '"><span>あなたの記録</span><b>' + esc(mp.name) + '</b><em>測定・トレーニングを入力する ›</em></a>'
       : '<p class="hint ro">あなたのIDはまだ選手に紐付けられていないため、閲覧のみです。コーチに「選手情報の編集」でログインIDを登録してもらってください。</p>';
   }
   if (!loaded) h += '<div class="empty">読み込み中…</div>';
   else if (r.v === 'team') h += teamView();
   else if (r.v === 'player') { const p = find(r.id); h += p ? playerView(p) : homeView(); }
+  else if (r.v === 'train') { const p = find(r.id); h += p ? trainView(p) : homeView(); }
   else h += homeView();
   root.innerHTML = h + '</main>';
 }
@@ -250,9 +277,13 @@ function homeView() {
       '<div class="pd">' + (ld ? '最終測定 ' + esc(ld.replace(/-/g, '/')) : '測定なし') + '</div></a>';
   }).join('') + '</div>';
 }
-function playerView(p) {
+function headHtml(p, tab) {
   const o = overall(p);
   return '<a class="back" href="#">‹ 選手一覧</a><div class="phead"><div><h1>' + esc(p.name) + '</h1><div class="pm">' + esc(p.grade) + ' ・ ' + esc(p.pos) + '</div></div><div class="ov"><b>' + (o == null ? '—' : pct(o)) + '</b><span>目標達成度</span></div></div>' +
+    '<div class="seg"><a href="#p-' + p.id + '" class="' + (tab === 'p' ? 'on' : '') + '">測定（MAX）</a><a href="#t-' + p.id + '" class="' + (tab === 't' ? 'on' : '') + '">トレーニング記録</a></div>';
+}
+function playerView(p) {
+  return headHtml(p, 'p') +
     (p.updatedAt ? '<p class="hint">最終更新 ' + esc(p.updatedAt.slice(0, 10).replace(/-/g, '/')) + (p.updatedBy ? '・' + esc(p.updatedBy) : '') + '</p>' : '') +
     (isCoach ? '<div class="acts"><button class="btn pri" data-act="record">測定を記録</button><button class="btn" data-act="targets">目標を設定</button><button class="btn" data-act="editPlayer">編集</button></div>'
       : isMine(p) ? '<div class="acts"><button class="btn pri" data-act="record">測定を記録</button></div><p class="hint">目標値はコーチが設定します。</p>' : '') +
@@ -268,7 +299,7 @@ function card(p, m) {
     delta = '<span class="dl ' + cls + '">' + (d > 0 ? '▲' : d < 0 ? '▼' : '±') + fmt(Math.abs(d)) + '</span>';
   }
   let rem = ''; if (t != null && c != null) rem = done ? '<span class="ok">達成！</span>' : 'あと ' + fmt(Math.abs(t - c)) + m.u;
-  return '<div class="card' + (done ? ' done' : '') + '"><div class="mn">' + m.n + '</div>' +
+  return '<div class="card' + (done ? ' done' : '') + '"><div class="mn">' + m.n + (m.mx ? ' <i class="mx">MAX</i>' : '') + '</div>' +
     '<div class="cv">' + (c == null ? '<span class="na">未測定</span>' : fmt(c) + '<small>' + m.u + '</small>') + delta + '</div>' +
     '<div class="tg"><span>' + (t == null ? '目標未設定' : '目標 ' + fmt(t) + m.u) + '</span><span>' + rem + '</span></div>' +
     '<div class="pbar ' + barCls(pr) + '"><i style="width:' + (pr == null ? 0 : pct(pr)) + '"></i></div>' + spark(s, t) + '</div>';
@@ -317,7 +348,7 @@ function modal(title, body, onSave, o) {
   m.querySelector('form').addEventListener('submit', e => {
     e.preventDefault();
     const btn = m.querySelector('button[type=submit]'); if (btn) btn.disabled = true;
-    Promise.resolve(onSave(new FormData(e.target))).then(err => {
+    Promise.resolve(onSave(new FormData(e.target), m)).then(err => {
       if (btn) btn.disabled = false;
       if (err) { m.querySelector('.err').textContent = err; return; }
       m.remove(); render();
@@ -345,9 +376,9 @@ function recordForm(p, date) {
   const body = '<label>測定日<input type="date" name="date" value="' + (ex ? ex.date : today()) + '"></label><div class="fgrid">' +
     M.map(m => {
       const last = cur(p, m.k), v = ex && num(ex.values[m.k]) != null ? ex.values[m.k] : '';
-      return '<label>' + m.n + '<span class="u">' + m.u + '</span><input name="' + m.k + '" type="number" step="any" inputmode="decimal" value="' + v + '" placeholder="' + (last != null ? '前回 ' + fmt(last) : '') + '"></label>';
+      return '<label>' + m.n + (m.mx ? ' <i class="mx">MAX</i>' : '') + '<span class="u">' + m.u + '</span><input name="' + m.k + '" type="number" step="any" inputmode="decimal" value="' + v + '" placeholder="' + (last != null ? '前回 ' + fmt(last) : '') + '"></label>';
     }).join('') +
-    '</div><p class="hint">' + (ex ? '空欄にした項目はこの日の記録から消えます。' : '測った項目だけ入力すればOK。同じ日付の記録があれば追記されます。') + '</p>';
+    '</div><p class="hint">MAXの項目は、1回挙げられる最大重量を入力します。日々の重量×回数は「トレーニング記録」へ。<br>' + (ex ? '空欄にした項目はこの日の記録から消えます。' : '測った項目だけ入力すればOK。同じ日付の記録があれば追記されます。') + '</p>';
   modal(ex ? '測定記録の編集' : '測定を記録', body, fd => {
     const d = fd.get('date'); if (!d) return '測定日を入力してください';
     const vals = {}; M.forEach(m => { const v = num(fd.get(m.k)); if (v != null) vals[m.k] = v; });
@@ -411,6 +442,96 @@ function accountModal() {
   });
 }
 
+/* ---------- トレーニング記録 ---------- */
+const EX = ['スクワット', 'デッドリフト', 'ベンチプレス', 'ブルガリアンスクワット', 'ルーマニアンデッドリフト', 'バックランジ', 'サイドランジ'];
+const e1rm = (w, r) => !w || !r ? 0 : r === 1 ? w : w * (1 + r / 30);
+const fmtD = d => { const x = new Date(d + 'T00:00:00'); return d.replace(/-/g, '/') + '（' + '日月火水木金土'[x.getDay()] + '）'; };
+function ensureLogs(pid) {
+  if (pid === logsPid) return;
+  if (logsUnsub) { logsUnsub(); logsUnsub = null; }
+  logs = []; logsLoaded = false; logsPid = pid;
+  if (!pid) return;
+  logsUnsub = onSnapshot(query(collection(fs, 'logs'), where('playerId', '==', pid)), snap => {
+    logs = snap.docs.map(d => { const x = d.data() || {}; return { id: d.id, date: x.date || '', items: x.items || [] }; });
+    logsLoaded = true; render();
+  }, err => { logsLoaded = true; setStatus(err && err.code === 'permission-denied' ? 'denied' : 'err'); render(); });
+}
+function saveDay(p, date, items) {
+  const id = p.id + '_' + date;
+  if (!items.length) { queue(id, () => deleteDoc(doc(fs, 'logs', id))); return; }
+  const body = { playerId: p.id, date, items, updatedAt: new Date().toISOString(), updatedBy: showId(user && user.email) };
+  queue(id, () => setDoc(doc(fs, 'logs', id), body));
+}
+function trainView(p) {
+  let h = headHtml(p, 't');
+  if (canRec(p)) h += '<div class="acts"><button class="btn pri" data-act="addLog">＋ トレーニングを記録</button></div>';
+  if (!logsLoaded) return h + '<div class="empty">読み込み中…</div>';
+  const days = logs.filter(d => d.items.length).sort((a, b) => b.date.localeCompare(a.date));
+  if (!days.length) return h + '<div class="empty">' + (canRec(p) ? '「＋ トレーニングを記録」から、その日の種目・重量・回数を入力してください。' : 'まだトレーニング記録がありません。') + '</div>';
+  const best = {};
+  days.forEach(d => d.items.forEach(it => {
+    const b = best[it.ex] || (best[it.ex] = { w: 0, wr: 0, e: 0, last: '' });
+    (it.sets || []).forEach(s => { if (s.w > b.w || (s.w === b.w && s.r > b.wr)) { b.w = s.w; b.wr = s.r; } const e = e1rm(s.w, s.r); if (e > b.e) b.e = e; });
+    if (d.date > b.last) b.last = d.date;
+  }));
+  h += '<h2>種目別ベスト</h2><div class="tw"><table><thead><tr><th>種目</th><th>最高重量</th><th>推定MAX<small>計算値</small></th><th>最終日</th></tr></thead><tbody>' +
+    Object.keys(best).sort((a, b) => best[b].last.localeCompare(best[a].last)).map(k => {
+      const b = best[k];
+      return '<tr><td>' + esc(k) + '</td><td>' + (b.w ? fmt(b.w) + 'kg' : '自重') + '×' + b.wr + '</td><td>' + (b.e ? fmt(b.e) + 'kg' : '—') + '</td><td>' + esc(b.last.slice(5).replace('-', '/')) + '</td></tr>';
+    }).join('') + '</tbody></table></div><p class="hint">推定MAXは重量と回数から計算した目安です（Epley式）。</p>';
+  h += '<h2>記録</h2>' + days.map(d => '<div class="day"><div class="dh">' + esc(fmtD(d.date)) + '</div>' + d.items.map((it, i) => {
+    const sets = it.sets || [], vol = sets.reduce((t, s) => t + (s.w || 0) * (s.r || 0), 0);
+    return '<div class="li"><div class="lt"><b>' + esc(it.ex) + '</b>' + rec(p, '<button class="mini" data-act="editLog" data-date="' + esc(d.date) + '" data-i="' + i + '">編集</button>') + '</div>' +
+      '<div class="sets">' + sets.map(s => '<span>' + (s.w ? fmt(s.w) + 'kg' : '自重') + ' × ' + s.r + '</span>').join('') + '</div>' +
+      (it.memo ? '<div class="memo">' + esc(it.memo) + '</div>' : '') +
+      '<div class="vol">' + sets.length + 'セット' + (vol ? '・合計 ' + fmt(vol) + 'kg' : '') + '</div></div>';
+  }).join('') + '</div>').join('');
+  return h;
+}
+function setRow(i, s) {
+  return '<div class="setrow"><span class="sn">' + (i + 1) + '</span><input class="sw" type="number" step="any" inputmode="decimal" placeholder="kg" value="' + esc(s.w == null ? '' : s.w) + '"><input class="sr" type="number" step="1" inputmode="numeric" placeholder="回" value="' + esc(s.r == null ? '' : s.r) + '"><button type="button" class="xd" data-delset aria-label="削除">×</button></div>';
+}
+function logForm(p, date, idx) {
+  const day = date ? logs.find(d => d.date === date) : null, it = day && idx != null ? day.items[idx] : null;
+  const isOther = !!(it && !EX.includes(it.ex));
+  const sets = it ? it.sets : [{}, {}, {}];
+  const body = '<label>日付<input type="date" name="date" value="' + (date || today()) + '"></label>' +
+    '<label>種目<select name="ex">' + EX.map(e => '<option' + (it && it.ex === e ? ' selected' : '') + '>' + e + '</option>').join('') + '<option value="__other"' + (isOther ? ' selected' : '') + '>その他（自分で入力）</option></select></label>' +
+    '<label class="exo" style="display:' + (isOther ? 'block' : 'none') + '">種目名<input name="exo" value="' + (isOther ? esc(it.ex) : '') + '" placeholder="例：ヒップスラスト"></label>' +
+    '<div class="seth"><span>セット</span><span>重量（kg）</span><span>回数</span><span></span></div><div class="setrows">' + sets.map((s, i) => setRow(i, s)).join('') + '</div>' +
+    '<button type="button" class="btn" data-addset>＋ セットを追加</button>' +
+    '<label style="margin-top:14px">メモ（任意）<input name="memo" value="' + esc(it && it.memo || '') + '" placeholder="例：フォーム意識、余裕あり"></label>' +
+    '<p class="hint">自重の種目は重量を空欄（0kg）にしてください。</p>';
+  modal(it ? 'トレーニング記録の編集' : 'トレーニングを記録', body, (fd, m) => {
+    const d = fd.get('date'); if (!d) return '日付を入力してください';
+    let ex = fd.get('ex'); if (ex === '__other') ex = String(fd.get('exo') || '').trim(); if (!ex) return '種目名を入力してください';
+    const ss = [...m.querySelectorAll('.setrow')].map(r => ({ w: num(r.querySelector('.sw').value), r: num(r.querySelector('.sr').value) }))
+      .filter(s => s.r != null && s.r > 0).map(s => ({ w: s.w == null ? 0 : s.w, r: Math.round(s.r) }));
+    if (!ss.length) return '回数を1セット以上入力してください';
+    const item = { ex, sets: ss }; const memo = String(fd.get('memo') || '').trim(); if (memo) item.memo = memo;
+    const target = logs.find(x => x.date === d);
+    if (it && date !== d) {
+      saveDay(p, date, day.items.filter((_, i) => i !== idx));
+      saveDay(p, d, (target ? target.items : []).concat([item]));
+    } else if (it) { const items = day.items.slice(); items[idx] = item; saveDay(p, d, items); }
+    else saveDay(p, d, (target ? target.items : []).concat([item]));
+  }, {
+    extra: it ? '<button type="button" class="btn ghost" data-dellog>この種目を削除</button>' : '',
+    setup: m => {
+      const sel = m.querySelector('select[name=ex]'), exo = m.querySelector('.exo'), rows = m.querySelector('.setrows');
+      sel.onchange = () => { exo.style.display = sel.value === '__other' ? 'block' : 'none'; };
+      const renum = () => rows.querySelectorAll('.sn').forEach((x, i) => { x.textContent = i + 1; });
+      m.querySelector('[data-addset]').onclick = () => {
+        const last = rows.lastElementChild, w = last ? last.querySelector('.sw').value : '', r = last ? last.querySelector('.sr').value : '';
+        rows.insertAdjacentHTML('beforeend', setRow(rows.children.length, { w, r })); renum();
+      };
+      rows.addEventListener('click', e => { const b = e.target.closest('[data-delset]'); if (!b) return; if (rows.children.length > 1) { b.parentElement.remove(); renum(); } else { b.parentElement.querySelectorAll('input').forEach(x => { x.value = ''; }); } });
+      const del = m.querySelector('[data-dellog]');
+      if (del) del.onclick = () => { if (del.dataset.c) { m.remove(); saveDay(p, date, day.items.filter((_, i) => i !== idx)); render(); } else { del.dataset.c = 1; del.textContent = 'もう一度押すと削除'; } };
+    }
+  });
+}
+
 /* ---------- イベント ---------- */
 document.addEventListener('submit', e => {
   if (!e.target.matches('#loginForm')) return;
@@ -428,7 +549,7 @@ document.addEventListener('submit', e => {
 });
 document.addEventListener('click', e => {
   const a = e.target.closest('[data-act]'); if (!a || a.closest('.mask')) return;
-  const r = route(), p = r.v === 'player' ? find(r.id) : null;
+  const r = route(), p = (r.v === 'player' || r.v === 'train') ? find(r.id) : null;
   switch (a.dataset.act) {
     case 'addPlayer': playerForm(); break;
     case 'editPlayer': if (p) playerForm(p); break;
@@ -439,6 +560,8 @@ document.addEventListener('click', e => {
     case 'sort': sortK = sortK === a.dataset.k ? null : a.dataset.k; render(); break;
     case 'csv': csvModal(); break;
     case 'account': accountModal(); break;
+    case 'addLog': if (p && canRec(p)) logForm(p); break;
+    case 'editLog': if (p && canRec(p)) logForm(p, a.dataset.date, +a.dataset.i); break;
   }
 });
 window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
