@@ -149,6 +149,8 @@ const M = [
   { k: 'bench', mx: true, n: 'ベンチプレス', u: 'kg' },
   { k: 'mb', n: 'メディシンボール投げ', u: 'm' },
   { k: 'swing', n: 'スイングスピード', u: 'km/h' },
+  { k: 'run50', lo: true, n: '50m走', u: '秒' },
+  { k: 'run30', lo: true, n: '30m走', u: '秒' },
   { k: 'weight', n: '体重', u: 'kg' },
   { k: 'fat', n: '体脂肪率', u: '%' }
 ];
@@ -191,7 +193,7 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&a
 const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
 const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 const num = x => (x == null || x === '' || isNaN(+x)) ? null : +x;
-const fmt = v => v == null ? '—' : String(Math.round(v * 10) / 10);
+const fmt = v => v == null ? '—' : String(Math.round(v * 100) / 100);
 const series = (p, k) => p.records.filter(r => num(r.values && r.values[k]) != null).sort((a, b) => a.date.localeCompare(b.date)).map(r => ({ date: r.date, v: +r.values[k] }));
 const cur = (p, k) => { const s = series(p, k); return s.length ? s[s.length - 1].v : null; };
 function prog(p, k) {
@@ -321,10 +323,10 @@ function teamView() {
   const rows = ps.map(p => ({ p, o: overall(p) }));
   if (sortK) rows.sort((a, b) => {
     const av = sortK === 'o' ? a.o : cur(a.p, sortK), bv = sortK === 'o' ? b.o : cur(b.p, sortK);
-    if (av == null) return 1; if (bv == null) return -1; return bv - av;
+    if (av == null) return 1; if (bv == null) return -1; const mm = M.find(m => m.k === sortK); return mm && mm.lo ? av - bv : bv - av;
   });
   return '<div class="bar"><h1>チーム一覧</h1><button class="btn" data-act="csv">CSV出力</button></div>' +
-    '<p class="hint">見出しをタップで並べ替え（高い順）。セルは「現在 / 目標」、色は達成度（緑＝達成、青＝50%以上、橙＝50%未満）。</p>' +
+    '<p class="hint">見出しをタップで並べ替え（よい順。走のタイムは速い順）。セルは「現在 / 目標」、色は達成度（緑＝達成、青＝50%以上、橙＝50%未満）。</p>' +
     '<div class="tw"><table class="tt"><thead><tr><th>選手</th><th data-act="sort" data-k="o" class="' + (sortK === 'o' ? 'on' : '') + '">達成度</th>' +
     M.map(m => '<th data-act="sort" data-k="' + m.k + '" class="' + (sortK === m.k ? 'on' : '') + '">' + m.n + '<small>' + m.u + '</small></th>').join('') + '</tr></thead><tbody>' +
     rows.map(r => {
